@@ -24,7 +24,10 @@ namespace TestApp
             // @"C:\Users\brick\Desktop" test path.  crashes when accessing folders that need permission
             gl.pathName = "";
             gl.folderIndent = 0;
-            gl.docName = Environment.GetEnvironmentVariable("userprofile") + @"\Desktop\test.html";
+            gl.docName = "";
+            Console.WriteLine("What is the full path to the HTML file to output? (If blank then i'll put it on your desktop.");
+            //gl.docName = Console.ReadLine();
+            if (gl.docName == ""){ gl.docName = Environment.GetEnvironmentVariable("userprofile") + @"\Desktop\output.html"; }
             print("Output set to " + gl.docName);
             gl.webRoot = "";
 
@@ -35,15 +38,16 @@ namespace TestApp
             if (args.Length == 0)
             {
                 Console.WriteLine("Please type the full path of the folder and press ENTER (example: C:\\wwwroot\\Filesandstuff)");
-                gl.pathName = Console.ReadLine();
+                //gl.pathName = Console.ReadLine();
                 Console.WriteLine("Please type the root folder of the web server and press ENTER (example: C:\\wwwroot\\) This IS case sensitive.");
-                gl.webRoot = Console.ReadLine();
+                //gl.webRoot = Console.ReadLine();
                 Console.WriteLine("Please type the allowed file types seperated by commas.  example: 'pdf, doc, txt' (leave blank to accept all files)");
-                gl.fileTypes = Console.ReadLine();
+                //gl.fileTypes = Console.ReadLine();
                 Console.Clear();
                 if (gl.pathName == "")
                 {
-                    gl.pathName = @"X:\Portals\0\BoardItems\";
+                    //gl.pathName = @"X:\Portals\0\BoardItems\";
+                    gl.pathName = @"X:\Portals\0\pdf\LEP Vital Documents and Forms";
                     gl.webRoot = @"X:\";
                     gl.fileTypes = "pdf txt doc";
                     print("No input, so selecting default test folder.");
@@ -76,8 +80,8 @@ namespace TestApp
             string temp = "";
 
             //     create opening ul tag for folder.
-            
-            //if this is the root folder, dont collapse it, otherwise collapse it so the user has to click on it
+            Console.WriteLine("Working on " + directory + " right now.");
+            //if this is the root folder, dont add collapse css tag, otherwise collapse it so the user has to click on it
             if (directory == gl.pathName) {
                 print("Folder is " + directory + " so it is at the top of the tree.");
                 temp = "<li><a href=\"#" + "\">" + justGetName(directory) + "</a><ul>";
@@ -92,11 +96,13 @@ namespace TestApp
                 for (int i = 0; i < number; i++)
                 {
                     directories[i] = Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly)[i];
+                    print("Process recursive directory " + directories[i]);
                     processDirectories(directories[i]);
                 };
                 number--;
             } else {
-                print("No more folders inside . Listing files. Closing folder " + directory);
+                print("No more folders inside. Listing files. Closing folder " + directory);
+                print("Listing files inside " + directory);
                 listFiles(directory, gl.docName, gl.webRoot);
                 updateFile("</ul></li>");
             };
@@ -173,14 +179,21 @@ namespace TestApp
         {
             string temp = "";
             string ext = "";
+            print("Listing Files in " + pathName);
+            print(Directory.GetFiles(pathName).Length + " files inside " + pathName);
             for (int i = 0; i < Directory.GetFiles(pathName).Length; i++)
             {
+                //get file and path name for the next file
                 ext = Directory.GetFiles(pathName)[i].ToLower().ToString();
+                //now remove everything except the extension at the end
                 ext = ext.Substring(ext.Length - 3, 3);
+                print(gl.fileTypes);
+                Console.WriteLine(gl.fileTypes.Split(ext));
                 if (gl.fileTypes.Split(ext).Length - 1 > 0)
                 {
                     temp = "<li><a href=\"" + cleanFolderPath(Directory.GetFiles(pathName)[i], root) + "\">" + justGetName(Directory.GetFiles(pathName)[i]) + "</a></li>";
                     temp = temp.Replace("\\", "/");
+                    print("adding " + temp);
                     updateFile(temp);
                 }
                 
@@ -198,11 +211,11 @@ namespace TestApp
             {
                 sw.WriteLine(@"<html>");
                 sw.WriteLine(@"<head>");
-                //sw.WriteLine("<link href=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\" rel=\"stylesheet\" />");
-                //sw.WriteLine("<link href=\"http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css\" rel=\"stylesheet\" />");
-                sw.WriteLine("<link href=\"/Portals/0/multinestedlists/style.css\" rel=\"stylesheet\" />");
-                //sw.WriteLine("<script src = \"http://code.jquery.com/jquery-1.11.0.min.js\"></script>");
-                sw.WriteLine("<script src=\"/Portals/0/multinestedlists/MultiNestedList.js\"></script>");
+                sw.WriteLine("<link href=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\" rel=\"stylesheet\" />");
+                sw.WriteLine("<link href=\"http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css\" rel=\"stylesheet\" />");
+                //sw.WriteLine("<link href=\"/Portals/0/multinestedlists/style.css\" rel=\"stylesheet\" />");
+                sw.WriteLine("<script src = \"http://code.jquery.com/jquery-1.11.0.min.js\"></script>");
+                //sw.WriteLine("<script src=\"/Portals/0/multinestedlists/MultiNestedList.js\"></script>");
                 sw.WriteLine(@"</head>");
                 sw.WriteLine(@"<body>");
                 sw.WriteLine("<div class=\"container\">");
